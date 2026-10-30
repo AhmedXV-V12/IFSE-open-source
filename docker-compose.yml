@@ -1,6 +1,11 @@
 # IFSE Open: two services sharing one index (the ifse-data volume)
-#   search   public site + API          http://localhost:5000  (owner sign-in: /owner)
-#   indexer  crawler + index + dashboard http://127.0.0.1:5101 (keep it private)
+#   search   public site + API           port SEARCH_PORT (owner sign-in: /owner)
+#   indexer  crawler + index + dashboard port INDEXER_PORT (keep it private)
+#
+# Where each one listens on this machine comes from .env (install.sh /
+# install.ps1 ask and write it):
+#   SEARCH_BIND   0.0.0.0 = every network (LAN, server, internet), 127.0.0.1 = this machine only
+#   INDEXER_BIND  127.0.0.1 by default: the dashboard controls the index
 services:
   indexer:
     build: .
@@ -8,10 +13,12 @@ services:
     restart: unless-stopped
     environment:
       - IFSE_ADMIN_TOKEN=${IFSE_ADMIN_TOKEN:-}
+      - IFSE_SEARCH_URL=${SEARCH_URL:-}
+      - IFSE_SEARCH_PUBLIC_PORT=${SEARCH_PORT:-5000}
     volumes:
       - ifse-data:/data
     ports:
-      - "127.0.0.1:5101:5101"
+      - "${INDEXER_BIND:-127.0.0.1}:${INDEXER_PORT:-5101}:5101"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5101/health')"]
       interval: 30s
@@ -28,7 +35,7 @@ services:
       - ifse-data:/data:ro
       - ifse-site:/site     # the site design and its images
     ports:
-      - "5000:5000"
+      - "${SEARCH_BIND:-0.0.0.0}:${SEARCH_PORT:-5000}:5000"
     depends_on:
       - indexer
     healthcheck:

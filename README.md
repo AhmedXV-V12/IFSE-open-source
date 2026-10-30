@@ -63,21 +63,36 @@ index and empty filters: what goes in is decided by whoever runs it.
 ```bash
 git clone https://github.com/AhmedXV-V12/IFSE-open-source.git
 cd IFSE-open-source
-cp .env.example .env        # set IFSE_ADMIN_TOKEN to a long random string
-docker compose up -d --build
+./install.sh            # Windows: .\install.ps1
 ```
 
-- Search: <http://localhost:5000>
-- Customize the site: <http://localhost:5000/owner> — sign in with `IFSE_ADMIN_TOKEN`.
-- Indexer dashboard: <http://127.0.0.1:5101> — sign in with `IFSE_ADMIN_TOKEN`.
-  Left empty, a token is generated on first start; read it with
-  `docker compose exec indexer cat /data/admin_token`.
+The installer asks:
+
+| Question | Choices | Default |
+|---|---|---|
+| Who can open the search site? | `0.0.0.0` — everyone who can reach the machine (LAN, server, internet) · `127.0.0.1` — this machine only | `0.0.0.0` |
+| Search site port | any free port | `5000` |
+| Who can open the indexer dashboard? | `127.0.0.1` — this machine only · `0.0.0.0` — every network | `127.0.0.1` |
+| Dashboard port | any free port | `5101` |
+| Public address (domain) of the site | optional | none |
+
+It writes `.env` with a random admin token, builds, starts, and prints the addresses
+(including this machine's LAN addresses) and the token. `--defaults` (`-Defaults` on
+Windows) takes every default without asking.
+
+To set it up by hand instead: `cp .env.example .env`, edit it, `docker compose up -d --build`.
+
+- Search: `http://<machine>:5000`
+- Customize the site: `http://<machine>:5000/owner` — sign in with the admin token.
+- Indexer dashboard: `http://localhost:5101` — sign in with the admin token.
 
 Then open **Crawl → Add sites**, paste a few URLs, and watch them appear in
 **Index browser** and in search a few seconds later.
 
-The dashboard port is bound to `127.0.0.1` on purpose. Reach it over SSH, a VPN, or a
-reverse proxy with its own authentication — never publish it as is.
+The dashboard controls the index, so it listens on `127.0.0.1` unless you choose
+otherwise. To reach it from elsewhere, prefer SSH, a VPN, or a reverse proxy with its own
+authentication. If other devices cannot open the search site, allow its port in the
+machine's firewall.
 
 ### Without Docker
 
@@ -93,13 +108,16 @@ Data goes to `./data` (or `IFSE_DATA`).
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `IFSE_ADMIN_TOKEN` | generated | Dashboard password |
+| `SEARCH_BIND` / `SEARCH_PORT` | `0.0.0.0` / `5000` | Where the search site listens on the machine (Docker) |
+| `INDEXER_BIND` / `INDEXER_PORT` | `127.0.0.1` / `5101` | Where the dashboard listens on the machine (Docker) |
+| `SEARCH_URL` | empty | The site's public address, for the dashboard's "Customize the site" link |
+| `IFSE_ADMIN_TOKEN` | generated | Dashboard and `/owner` password |
 | `IFSE_DATA` | `./data` (`/data` in Docker) | Where the index, filters and settings live |
 | `IFSE_SITE_DATA` | `./data/site` (`/site` in Docker) | The site design and its uploaded images |
-| `IFSE_SEARCH_URL` | `http://<host>:5000` | Where the dashboard's "Customize the site" link points |
 | `IFSE_RATE_PER_MIN` | `120` | API requests per minute per IP on the search service |
 | `IFSE_ALLOW_PRIVATE` | off | `1` lets the crawler fetch private addresses (your LAN / intranet). Off, it only fetches public addresses. |
-| `IFSE_INDEXER_PORT` / `IFSE_SEARCH_PORT` | `5101` / `5000` | Ports |
+| `IFSE_INDEXER_HOST` / `IFSE_SEARCH_HOST` | `0.0.0.0` | Listen address without Docker |
+| `IFSE_INDEXER_PORT` / `IFSE_SEARCH_PORT` | `5101` / `5000` | Ports without Docker |
 
 Crawler settings (workers, delay per host, depth, pages per host, following other sites,
 user agent) are edited in the dashboard and saved to `data/settings.json`; filters are in

@@ -93,7 +93,9 @@ def headers(resp):
 def home():
     if not _authorized():
         return render_template("login.html", version=VERSION)
-    return render_template("dashboard.html", version=VERSION, search_url=os.environ.get("IFSE_SEARCH_URL", "").rstrip("/"))
+    return render_template("dashboard.html", version=VERSION,
+                           search_url=os.environ.get("IFSE_SEARCH_URL", "").rstrip("/"),
+                           search_port=os.environ.get("IFSE_SEARCH_PUBLIC_PORT", "5000"))
 
 
 @app.route("/login", methods=["POST"])
