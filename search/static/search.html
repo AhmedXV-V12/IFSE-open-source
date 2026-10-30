@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#090909">
+    <title>IFelx — نتائج البحث</title>
+    <meta name="description" content="نتائج البحث في محرك IFelx العربي المستقل">
+    <link rel="icon" href="/logo.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400..900&family=Inter:wght@400..700&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400..900&family=Inter:wght@400..700&display=swap"></noscript>
+    <link rel="stylesheet" href="/style.css?v=open-1.0">
+    <link rel="stylesheet" href="/customize.css?v=open-1.0">
+    <script>try{if(localStorage.getItem("ifse_lang")==="en"){document.documentElement.lang="en";document.documentElement.dir="ltr";}}catch(e){}</script>
+</head>
+<body class="ifx-search-page">
+
+<header class="ifx-topbar ifx-topbar--search">
+    <div class="ifx-topbar-inner">
+        <a href="/" class="ifx-brand" aria-label="IFelx">
+            <img src="/logow-72.webp" alt="" width="36" height="36">
+            <span>IFelx</span>
+        </a>
+
+        <div class="ifx-topbar-main">
+            <div class="ifx-search ifx-search--bar" id="search" role="search">
+                <div class="ifx-search-box">
+                    <input type="search" class="ifx-search-input" id="searchInput"
+                           placeholder="ابحث في IFelx..." data-i18n-ph="placeholder"
+                           autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"
+                           role="combobox" aria-autocomplete="list" aria-controls="acDropdown" aria-expanded="false"
+                           aria-label="مربع البحث" data-i18n-label="searchBox">
+                    <span class="ifx-search-kbd" aria-hidden="true">/</span>
+                    <button type="button" class="ifx-search-clear" data-i18n-title="clear" title="مسح">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                    </button>
+                    <button type="button" class="ifx-search-btn" data-i18n-title="search" title="بحث">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+                    </button>
+                </div>
+                <div class="ifx-ac" id="acDropdown" role="listbox" aria-label="اقتراحات البحث" data-i18n-label="suggestions"></div>
+            </div>
+        </div>
+
+        <nav class="ifx-topbar-actions" aria-label="IFelx">
+            <a class="ifx-chip ifx-chip--icon" href="/history" data-i18n-title="historyTitle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            </a>
+            <a class="ifx-chip ifx-chip--icon" href="/about" data-i18n-title="about">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+            </a>
+            <button type="button" class="ifx-chip ifx-chip--lang" data-lang-toggle data-i18n-title="langTitle">EN</button>
+        </nav>
+    </div>
+</header>
+
+<div class="ifx-serp">
+    <main class="ifx-serp-main" id="main">
+        <h1 class="ifx-sr-only" data-i18n="resultsHeading">نتائج البحث</h1>
+        <div class="ifx-notice" id="crawlingNotice">
+            <span class="ifx-dot is-live"></span>
+            <span data-i18n="crawlingNotice">الفهرسة جارية في الخلفية — قد تظهر نتائج أكثر قريباً</span>
+        </div>
+
+        <div class="ifx-meta" id="resultMeta" aria-live="polite"></div>
+
+        <div id="resultsContainer"></div>
+    </main>
+
+    <aside class="ifx-serp-aside" aria-labelledby="asideTitle">
+        <div class="ifx-panel">
+            <h2 id="asideTitle"><img src="/logow-72.webp" alt="" width="28" height="28"><span data-i18n="asideTitle">فهرس IFelx</span></h2>
+            <p data-i18n="asideText">النتائج من فهرس هذا المحرك. صاحب المحرك يحدد بنفسه ما يدخل الفهرس.</p>
+            <div class="ifx-stats-bar" id="statsBar" hidden></div>
+            <div class="ifx-panel-links">
+                <a href="/about" data-i18n="about">حول IFelx</a>
+                <a href="/history" data-i18n="historyTitle">سجل التصفح</a>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<script src="/app.js?v=open-1.0"></script>
+<script src="/customize.js?v=open-1.0"></script>
+<script>
+(function () {
+const { t, esc, ICON, favicon, hostOf, pathOf } = IFX;
+
+const container = document.getElementById("resultsContainer");
+const meta      = document.getElementById("resultMeta");
+const notice    = document.getElementById("crawlingNotice");
+const statsBar  = document.getElementById("statsBar");
+
+let current  = "";     // query currently displayed
+let lastData = null;   // last response, re-rendered on language change
+let lastErr  = null;   // null | "offline" | "timeout" | "server"
+let lastMs   = 0;      // time the last search took, measured here
+let reqId    = 0;
+let inflight = null;
+
+IFX.applyLang();
+IFX.watchTopbar();
+
+const searchUi = IFX.setupSearch(document.getElementById("search"), q => go(q, true));
+
+/* ── Rendering ── */
+function skeleton() {
+    const one = `
+        <div class="ifx-result ifx-result--skel" aria-hidden="true">
+            <div class="ifx-row"><div class="ifx-skel ifx-skel--icon"></div><div class="ifx-skel ifx-skel--line w30"></div></div>
+            <div class="ifx-skel ifx-skel--title w70"></div>
+            <div class="ifx-skel ifx-skel--line w100"></div>
+            <div class="ifx-skel ifx-skel--line w50"></div>
+        </div>`;
+    return `<div class="ifx-result-list">${one.repeat(4)}</div>`;
+}
+
+function state(kind, icon, title, hint, action) {
+    return `<div class="ifx-state${kind ? " ifx-state--" + kind : ""}">
+        <div class="ifx-state-icon">${ICON[icon]}</div>
+        <h2>${esc(title)}</h2><p>${esc(hint)}</p>${action || ""}
+    </div>`;
+}
+
+function renderStart() {
+    meta.innerHTML = "";
+    notice.classList.remove("show");
+    statsBar.hidden = true;
+    container.innerHTML = state("", "search", t("startTitle"), t("startHint"));
+}
+
+function renderError() {
+    meta.innerHTML = "";
+    notice.classList.remove("show");
+    const [title, hint] =
+        lastErr === "offline" ? [t("errorTitle"), t("offlineHint")] :
+        lastErr === "timeout" ? [t("timeoutTitle"), t("timeoutHint")] :
+                                [t("errorTitle"), t("errorHint")];
+    container.innerHTML = state("error", "wifiOff", title, hint,
+        `<button type="button" class="ifx-chip" id="retryBtn">${ICON.reload}<span>${t("retry")}</span></button>`);
+    document.getElementById("retryBtn").addEventListener("click", () => run(current));
+}
+
+function setHead(query) {
+    document.title = query ? t("searchTitle", query) : `IFelx — ${t("resultsHeading")}`;
+    const md = document.querySelector('meta[name="description"]');
+    if (md && query) md.content = t("searchDesc", query);
+}
+
+function renderResults(query, data) {
+    const results    = data.results || [];
+    const count      = data.count ?? results.length;
+    const suggestion = data.suggestion;
+    const stats      = data.stats;
+    const terms      = IFX.queryTerms(query);
+
+    meta.innerHTML = t("results", IFX.fmt(count), esc(query)) +
+        (lastMs ? ` <span class="ifx-meta-time ifx-ltr">${t("seconds", (lastMs / 1000).toFixed(2))}</span>` : "");
+
+    const crawling = IFX.crawlState(stats).kind;
+    notice.classList.toggle("show", (crawling === "own" || crawling === "nodes") && results.length < 5);
+
+    let html = "";
+    if (suggestion) {
+        html += `<div class="ifx-didyoumean">${t("didYouMean")} <a href="/search.html?q=${encodeURIComponent(suggestion)}" data-suggest="${esc(suggestion)}">${esc(suggestion)}</a>${IFX.lang() === "ar" ? "؟" : "?"}</div>`;
+    }
+
+    if (!results.length) {
+        container.innerHTML = html + state("", "empty", t("noResults"), t("noResultsHint"));
+    } else {
+        container.innerHTML = html + `<div class="ifx-result-list" id="resultList"></div>`;
+        const list = document.getElementById("resultList");
+        results.forEach((r, i) => {
+            const domain = hostOf(r.url);
+            const path   = pathOf(r.url);
+            const title  = r.title || r.url;
+            const card = document.createElement("article");
+            card.className = "ifx-result";
+            card.style.setProperty("--i", Math.min(i, 12));
+            card.innerHTML = `
+                <div class="ifx-result-src">
+                    ${favicon(domain)}
+                    <div class="ifx-result-host">
+                        <span class="ifx-result-domain">${esc(domain)}</span>
+                        ${path ? `<span class="ifx-result-path">${esc(path)}</span>` : ""}
+                    </div>
+                </div>
+                <a class="ifx-result-title" dir="auto" href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${IFX.highlight(title, terms)}</a>
+                ${r.description ? `<div class="ifx-result-desc" dir="auto">${IFX.highlight(r.description, terms)}</div>` : ""}
+                <button type="button" class="ifx-result-more" aria-haspopup="menu" aria-expanded="false" title="${t("moreActions")}" aria-label="${t("moreActions")}">${ICON.more}</button>`;
+            card.querySelector(".ifx-result-title").addEventListener("click", () => IFX.trackVisit(r.url, title, domain));
+            IFX.bindMenu(card, { url: r.url, title, domain }, card.querySelector(".ifx-result-more"));
+            list.appendChild(card);
+        });
+    }
+
+    const dym = container.querySelector("[data-suggest]");
+    if (dym) dym.addEventListener("click", e => {
+        e.preventDefault();
+        searchUi.input.value = dym.dataset.suggest;
+        searchUi.sync();
+        go(dym.dataset.suggest, true);
+    });
+
+    if (stats) {
+        statsBar.innerHTML = IFX.statsHtml(stats);
+        statsBar.hidden = false;
+    }
+}
+
+function rerender() {
+    setHead(current);
+    if (!current) renderStart();
+    else if (lastErr) renderError();
+    else if (lastData) renderResults(current, lastData);
+}
+
+IFX.onLang(rerender);
+
+/* ── Search execution ── */
+async function run(query) {
+    const my = ++reqId;
+    if (inflight) inflight.abort();          // a newer search replaces the one still loading
+    inflight = new AbortController();
+    current  = query;
+    lastData = null;
+    lastErr  = null;
+    setHead(query);
+
+    meta.innerHTML = `<div class="ifx-spinner" aria-hidden="true"></div><span>${t("searching")}</span>`;
+    container.innerHTML = skeleton();
+    container.setAttribute("aria-busy", "true");
+
+    const t0 = performance.now();
+    try {
+        const data = await IFX.fetchJSON(`/api/search?q=${encodeURIComponent(query)}`, { signal: inflight.signal, timeout: 20000 });
+        if (my !== reqId) return;
+        lastMs   = performance.now() - t0;
+        lastData = data;
+        renderResults(query, data);
+    } catch (e) {
+        if (my !== reqId) return;
+        lastErr = !navigator.onLine ? "offline" : e.name === "TimeoutError" ? "timeout" : "server";
+        renderError();
+    } finally {
+        if (my === reqId) container.removeAttribute("aria-busy");
+    }
+}
+
+function go(query, push) {
+    if (push) window.history.pushState({ q: query }, "", `/search.html?q=${encodeURIComponent(query)}`);
+    window.scrollTo({ top: 0 });
+    run(query);
+}
+
+window.addEventListener("popstate", () => {
+    const q = new URLSearchParams(location.search).get("q") || "";
+    searchUi.input.value = q;
+    searchUi.sync();
+    if (q) run(q); else { current = ""; renderStart(); }
+});
+
+/* ── Init ── */
+const initial = (new URLSearchParams(location.search).get("q") || "").trim();
+if (initial) {
+    searchUi.input.value = initial;
+    searchUi.sync();
+    run(initial);
+} else {
+    renderStart();
+    searchUi.input.focus();
+}
+})();
+</script>
+</body>
+</html>

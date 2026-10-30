@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#090909">
+    <title>IFSE Open</title>
+    <meta name="description" content="IFelx محرك بحث عربي سريع وآمن ومستقل">
+    <meta name="keywords" content="بحث, محرك بحث عربي, IFelx, IFelx browser">
+    <meta name="author" content="IFelx">
+    <link rel="icon" href="/logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="/logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400..900&family=Inter:wght@400..700&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400..900&family=Inter:wght@400..700&display=swap"></noscript>
+    <link rel="preload" href="/logow-352.webp" as="image" type="image/webp" fetchpriority="high">
+    <link rel="stylesheet" href="/style.css?v=open-1.0">
+    <link rel="stylesheet" href="/customize.css?v=open-1.0">
+    <script>try{if(localStorage.getItem("ifse_lang")==="en"){document.documentElement.lang="en";document.documentElement.dir="ltr";}}catch(e){}</script>
+</head>
+<body class="ifx-home">
+
+<header class="ifx-home-bar">
+    <nav class="ifx-home-nav" aria-label="IFelx">
+        <a class="ifx-chip ifx-chip--collapse" href="/history" data-i18n-title="historyTitle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            <span class="ifx-chip-label" data-i18n="history">السجل</span>
+        </a>
+        <a class="ifx-chip ifx-chip--collapse" href="/about" data-i18n-title="about">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+            <span class="ifx-chip-label" data-i18n="about">حول IFelx</span>
+        </a>
+        <button type="button" class="ifx-chip ifx-chip--lang" data-lang-toggle data-i18n-title="langTitle">EN</button>
+    </nav>
+</header>
+
+<main class="ifx-home-main" id="main">
+
+    <section class="ifx-home-hero">
+        <div class="ifx-lockup">
+            <span class="ifx-lockup-logo"><img src="/logow-352.webp" alt="IFelx Logo" width="88" height="88" fetchpriority="high"></span>
+            <div class="ifx-lockup-text">
+                <h1 class="ifx-hero-name">IFelx Search Engine</h1>
+                <p class="ifx-hero-sub" data-i18n="brandSub">محرك البحث العربي المستقل</p>
+            </div>
+        </div>
+
+        <div class="ifx-search ifx-search--hero" id="search" role="search">
+            <div class="ifx-search-box">
+                <svg class="ifx-search-lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+                <input type="search" class="ifx-search-input" id="searchInput"
+                       placeholder="ابحث في IFelx..." data-i18n-ph="placeholder"
+                       autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"
+                       role="combobox" aria-autocomplete="list" aria-controls="acDropdown" aria-expanded="false"
+                       aria-label="مربع البحث" data-i18n-label="searchBox">
+                <span class="ifx-search-kbd" aria-hidden="true">/</span>
+                <button type="button" class="ifx-search-clear" data-i18n-title="clear" title="مسح">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+                <button type="button" class="ifx-search-btn" data-i18n-title="search" title="بحث">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+                    <span class="ifx-search-btn-label" data-i18n="search">بحث</span>
+                </button>
+            </div>
+            <div class="ifx-ac" id="acDropdown" role="listbox" aria-label="اقتراحات البحث" data-i18n-label="suggestions"></div>
+        </div>
+
+        <div class="ifx-searching" id="searching" aria-live="polite">
+            <div class="ifx-spinner"></div><span data-i18n="searching">جاري البحث...</span>
+        </div>
+
+        <div class="ifx-stats" id="statsRow" aria-live="polite"></div>
+    </section>
+</main>
+
+<footer class="ifx-footer">
+    <nav class="ifx-footer-links" aria-label="IFelx">
+        <a href="/about" data-i18n="about">حول IFelx</a>
+        <a href="/history" data-i18n="history">السجل</a>
+    </nav>
+    <span class="ifx-footer-copy">IFSE Open · <a href="https://github.com/ahmedxv-v12/ifse-open" data-i18n="rights">مفتوح المصدر — AGPL-3.0</a></span>
+    <span class="ifx-version">Open v1.0</span>
+</footer>
+
+<script src="/app.js?v=open-1.0"></script>
+<script src="/customize.js?v=open-1.0"></script>
+<script>
+(function () {
+const { t } = IFX;
+
+IFX.applyLang();
+
+/* ── Search ── */
+const searchUi = IFX.setupSearch(document.getElementById("search"), q => {
+    document.getElementById("searching").classList.add("show");
+    window.location.href = `/search.html?q=${encodeURIComponent(q)}`;
+});
+
+/* coming back through the browser cache must not leave the spinner running */
+window.addEventListener("pageshow", () => document.getElementById("searching").classList.remove("show"));
+
+if (window.matchMedia("(hover: hover)").matches) searchUi.input.focus();
+
+/* ── Stats ── */
+let lastStats = null;
+
+async function loadStats() {
+    try { lastStats = await IFX.fetchStats(); }
+    catch { lastStats = null; }
+    document.getElementById("statsRow").innerHTML = IFX.statsHtml(lastStats);
+}
+
+IFX.onLang(() => {
+    document.getElementById("statsRow").innerHTML = IFX.statsHtml(lastStats);
+});
+
+loadStats();
+setInterval(() => { if (!document.hidden) loadStats(); }, 30000);
+})();
+</script>
+</body>
+</html>

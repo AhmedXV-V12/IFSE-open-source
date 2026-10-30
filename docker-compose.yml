@@ -1,0 +1,38 @@
+# IFSE Open: two services sharing one index (the ifse-data volume)
+#   search   public site + API          http://localhost:5000
+#   indexer  crawler + index + dashboard http://127.0.0.1:5101 (keep it private)
+services:
+  indexer:
+    build: .
+    command: ["python", "indexer/app.py"]
+    restart: unless-stopped
+    environment:
+      - IFSE_ADMIN_TOKEN=${IFSE_ADMIN_TOKEN:-}
+    volumes:
+      - ifse-data:/data
+    ports:
+      - "127.0.0.1:5101:5101"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5101/health')"]
+      interval: 30s
+      timeout: 5s
+
+  search:
+    build: .
+    command: ["python", "search/app.py"]
+    restart: unless-stopped
+    environment:
+      - IFSE_RATE_PER_MIN=${IFSE_RATE_PER_MIN:-120}
+    volumes:
+      - ifse-data:/data:ro
+    ports:
+      - "5000:5000"
+    depends_on:
+      - indexer
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/api/stats')"]
+      interval: 30s
+      timeout: 5s
+
+volumes:
+  ifse-data:

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#090909">
+    <title>IFelx — سجل التصفح</title>
+    <meta name="description" content="سجل المواقع التي فتحتها من نتائج IFelx — محفوظ على جهازك فقط ولا يُرسل إلى السيرفر.">
+    <link rel="icon" href="/logo.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400..900&family=Inter:wght@400..700&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400..900&family=Inter:wght@400..700&display=swap"></noscript>
+    <link rel="stylesheet" href="/style.css?v=open-1.0">
+    <link rel="stylesheet" href="/customize.css?v=open-1.0">
+    <script>try{if(localStorage.getItem("ifse_lang")==="en"){document.documentElement.lang="en";document.documentElement.dir="ltr";}}catch(e){}</script>
+</head>
+<body class="ifx-history-page">
+
+<header class="ifx-topbar">
+    <div class="ifx-topbar-inner">
+        <a href="/" class="ifx-brand" aria-label="IFelx">
+            <img src="/logow-72.webp" alt="" width="36" height="36">
+            <span>IFelx</span>
+        </a>
+        <div class="ifx-topbar-main"></div>
+        <nav class="ifx-topbar-actions" aria-label="IFelx">
+            <a class="ifx-chip ifx-chip--collapse" href="/" data-i18n-title="home">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/></svg>
+                <span class="ifx-chip-label" data-i18n="home">الرئيسية</span>
+            </a>
+            <button type="button" class="ifx-chip ifx-chip--lang" data-lang-toggle data-i18n-title="langTitle">EN</button>
+        </nav>
+    </div>
+</header>
+
+<main class="ifx-page">
+    <div class="ifx-page-head">
+        <div class="ifx-eyebrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+            <span id="countLabel">—</span>
+        </div>
+        <h1 data-i18n="historyTitle">سجل التصفح</h1>
+        <p data-i18n="historySub">محفوظ محلياً على جهازك فقط — لا يُرسل للسيرفر</p>
+    </div>
+
+    <div class="ifx-toolbar">
+        <div class="ifx-search" id="historySearchWrap">
+            <div class="ifx-search-box">
+                <svg class="ifx-search-lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+                <input type="search" class="ifx-search-input" id="historySearch"
+                       placeholder="ابحث في السجل..." data-i18n-ph="historySearch"
+                       autocomplete="off" spellcheck="false" aria-label="ابحث في السجل">
+                <button type="button" class="ifx-search-clear" data-i18n-title="clear" title="مسح">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+        </div>
+        <button type="button" class="ifx-btn-danger" id="clearAllBtn" data-i18n-title="clearAll">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-12M9 7V4h6v3"/></svg>
+            <span class="ifx-chip-label" data-i18n="clearAll">مسح الكل</span>
+        </button>
+    </div>
+
+    <div id="historyList" aria-live="polite"></div>
+</main>
+
+<script src="/app.js?v=open-1.0"></script>
+<script src="/customize.js?v=open-1.0"></script>
+<script>
+(function () {
+const { t, esc, ICON, favicon, hostOf, visits } = IFX;
+
+const listEl   = document.getElementById("historyList");
+const searchEl = document.getElementById("historySearch");
+const clearBtn = document.getElementById("clearAllBtn");
+
+IFX.applyLang();
+IFX.watchTopbar();
+
+const locale = () => (IFX.lang() === "ar" ? "ar" : "en");
+
+function dayKey(ts) {
+    const d = new Date(ts);
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+}
+
+function dayLabel(key) {
+    const today = dayKey(Date.now());
+    if (key === today) return t("today");
+    if (key === today - 86400000) return t("yesterday");
+    return new Date(key).toLocaleDateString(locale(), { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+}
+
+function timeLabel(ts) {
+    return new Date(ts).toLocaleTimeString(locale(), { hour: "numeric", minute: "2-digit" });
+}
+
+function filterValue() { return searchEl.value.trim().toLowerCase(); }
+
+function render() {
+    const all    = visits.all();
+    const filter = filterValue();
+    const list   = filter
+        ? all.filter(e => [e.title, e.domain, e.url].some(v => (v || "").toLowerCase().includes(filter)))
+        : all;
+
+    document.getElementById("countLabel").textContent = t("items", IFX.fmt(all.length));
+    clearBtn.disabled = !all.length;
+
+    if (!list.length) {
+        const empty = !all.length;
+        listEl.innerHTML = `<div class="ifx-state">
+            <div class="ifx-state-icon">${empty ? ICON.clock : ICON.empty}</div>
+            <h2>${esc(empty ? t("historyEmpty") : t("historyNoMatch"))}</h2>
+            ${empty ? `<p>${esc(t("historyEmptyHint"))}</p>` : ""}
+        </div>`;
+        return;
+    }
+
+    /* group consecutive entries by calendar day */
+    const groups = [];
+    list.forEach(e => {
+        const k = dayKey(e.visited_at || 0);
+        const g = groups[groups.length - 1];
+        if (g && g.key === k) g.items.push(e); else groups.push({ key: k, items: [e] });
+    });
+
+    listEl.innerHTML = "";
+    let n = 0;
+    groups.forEach(g => {
+        const section = document.createElement("section");
+        section.className = "ifx-hgroup";
+        section.innerHTML = `<h2 class="ifx-hgroup-title"><span>${esc(dayLabel(g.key))}</span><span>${esc(t("items", IFX.fmt(g.items.length)))}</span></h2>`;
+        const ul = document.createElement("div");
+        ul.className = "ifx-hgroup-list";
+        g.items.forEach(e => {
+            const domain = (e.domain || hostOf(e.url)).replace(/^www\./, "");
+            const title  = e.title || e.url;
+            const row = document.createElement("article");
+            row.className = "ifx-hitem";
+            row.style.setProperty("--i", Math.min(n++, 15));
+            row.innerHTML = `
+                ${favicon(domain)}
+                <div class="ifx-hitem-info">
+                    <a class="ifx-hitem-title" dir="auto" href="${esc(e.url)}" target="_blank" rel="noopener noreferrer">${esc(title)}</a>
+                    <div class="ifx-hitem-meta"><span class="ifx-ltr">${esc(domain)}</span><span>·</span><span>${esc(timeLabel(e.visited_at))}</span></div>
+                </div>
+                <button type="button" class="ifx-hitem-del" title="${t("deleteItem")}" aria-label="${t("deleteItem")}">${ICON.close}</button>`;
+            row.querySelector(".ifx-hitem-title").addEventListener("click", () => IFX.trackVisit(e.url, e.title, e.domain));
+            row.querySelector(".ifx-hitem-del").addEventListener("click", ev => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                visits.remove(e.url);
+                render();
+            });
+            IFX.bindMenu(row, { url: e.url, title, domain, onRemoved: render });
+            ul.appendChild(row);
+        });
+        section.appendChild(ul);
+        listEl.appendChild(section);
+    });
+}
+
+IFX.setupSearch(document.getElementById("historySearchWrap"), () => {}, { autocomplete: false, remember: false, onClear: render });
+searchEl.addEventListener("input", render);
+
+clearBtn.addEventListener("click", () => {
+    if (!visits.all().length) return;
+    if (confirm(t("clearConfirm"))) {
+        visits.clear();
+        searchEl.value = "";
+        searchEl.dispatchEvent(new Event("input"));
+    }
+});
+
+/* another tab may have added visits */
+window.addEventListener("storage", e => { if (e.key === "ifse_visit_history") render(); });
+
+IFX.onLang(render);
+render();
+})();
+</script>
+</body>
+</html>

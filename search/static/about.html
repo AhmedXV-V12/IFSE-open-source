@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#090909">
+    <title>IFSE Open — سجل التحديثات</title>
+    <meta name="description" content="سجل تحديثات IFSE Open — النسخة مفتوحة المصدر من IFelx Search Engine">
+    <link rel="icon" href="/logo.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400..900&family=Inter:wght@400..700&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400..900&family=Inter:wght@400..700&display=swap"></noscript>
+    <link rel="stylesheet" href="/style.css?v=open-1.0">
+    <link rel="stylesheet" href="/customize.css?v=open-1.0">
+    <script>try{if(localStorage.getItem("ifse_lang")==="en"){document.documentElement.lang="en";document.documentElement.dir="ltr";}}catch(e){}</script>
+</head>
+<body class="ifx-about-page">
+
+<header class="ifx-topbar">
+    <div class="ifx-topbar-inner">
+        <a href="/" class="ifx-brand" aria-label="IFelx">
+            <img src="/logow-72.webp" alt="" width="36" height="36">
+            <span>IFelx</span>
+        </a>
+        <div class="ifx-topbar-main"></div>
+        <nav class="ifx-topbar-actions" aria-label="IFelx">
+            <a class="ifx-chip ifx-chip--collapse" href="/history" data-i18n-title="historyTitle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+                <span class="ifx-chip-label" data-i18n="history">السجل</span>
+            </a>
+            <a class="ifx-chip ifx-chip--collapse" href="/" data-i18n-title="home">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/></svg>
+                <span class="ifx-chip-label" data-i18n="home">الرئيسية</span>
+            </a>
+            <button type="button" class="ifx-chip ifx-chip--lang" data-lang-toggle data-i18n-title="langTitle">EN</button>
+        </nav>
+    </div>
+</header>
+
+<main class="ifx-page">
+
+    <div class="ifx-page-head">
+        <div class="ifx-eyebrow ifx-ltr">IFSE Open · v1.0</div>
+        <h1>سجل التحديثات</h1>
+        <p>تاريخ تطور IFSE Open — النسخة مفتوحة المصدر من IFelx Search Engine</p>
+    </div>
+
+    <!-- changelog entries are written in Arabic and stay right-to-left in both languages.
+         Add a new <article> at the top for every release; never edit a published one. -->
+    <div class="ifx-timeline" lang="ar" dir="rtl">
+
+        <!-- v1.0 -->
+        <article class="ifx-release is-latest">
+            <div class="ifx-release-head">
+                <div>
+                    <div class="ifx-release-tags"><span class="ifx-vbadge">v1.0</span><span class="ifx-newbadge">أحدث</span></div>
+                    <h2 class="ifx-release-title">أول إصدار مفتوح المصدر: محرك بحث ومفهرس تشغّلهم بنفسك</h2>
+                </div>
+                <time class="ifx-release-date">أكتوبر 2026</time>
+            </div>
+            <ul>
+                <li><strong>مفتوح المصدر تحت رخصة AGPL-3.0</strong> — الكود كله متاح، وأي حد يشغّل نسخة معدّلة كخدمة على الإنترنت لازم ينشر كودها.</li>
+                <li><strong>المفهرس جزء من المشروع</strong> — خدمتين منفصلتين في Docker: المفهرس (زاحف + فهرسة + لوحة تحكم) وخدمة البحث. أمر واحد يشغّلهم: <span class="ifx-ltr">docker compose up</span>.</li>
+                <li><strong>فلترة الفهرسة بإيدك</strong> — قواعد حظر أو سماح حسب الموقع، أو جزء من الرابط، أو تعبير منتظم، أو بداية المسار، أو كلمة في الصفحة، أو كلمة في العنوان، أو اللغة. وكمان حد أدنى لعدد الكلمات، وحد أقصى لحجم الصفحة، ووضع «القائمة البيضاء فقط».</li>
+                <li><strong>تجربة الفلاتر قبل تطبيقها</strong> — جرّب أي رابط وشوف هيتقبل ولا لأ وليه، وشوف معاينة بالصفحات اللي هتتشال من الفهرس الحالي قبل ما تشيلها.</li>
+                <li><strong>متصفح الفهرس</strong> — كل الصفحات المفهرسة قدامك: تبحث فيها، وتفلترها بالموقع واللغة، وترتبها، وتشوف تفاصيل كل صفحة وتاريخها، وتمسحها أو تعيد زحفها، أو تحظر موقع كامل بضغطة.</li>
+                <li><strong>سجل الفهرسة</strong> — كل صفحة اتضافت أو اتحدثت أو اترفضت أو اتشالت، وكل تغيير في الفلاتر والإعدادات، متسجّل بوقته وسببه.</li>
+                <li><strong>Customize my engine</strong> — زر الترس في ركن الصفحة الرئيسية بيفتح محرر تصميم: حرّك مربع البحث لفوق أو تحت أو يمين أو شمال أو اسحبه بحرية، وغيّر الألوان والخلفية (لون، أو تدرّج، أو صورة)، وضيف اختصارات لمواقعك وصور على الصفحة، وأظهر أو أخفِ أي جزء. التصميم بيتحفظ على جهازك، وتقدر تصدّره وتستورده كملف.</li>
+                <li><strong>بدون حَكَم ذكي وبدون قوائم حظر جاهزة</strong> — النسخة المفتوحة بتبدأ بفهرس فاضي وفلاتر فاضية؛ صاحب المحرك هو اللي يقرر إيه اللي يدخل.</li>
+                <li><strong>بحث بنفس هوية IFelx</strong> — نفس الواجهة الغامقة والشعار والخطوط، ونفس توحيد الحروف العربية (أ/إ/ا، ة/ه، ى/ي، والتشكيل) في الفهرسة والبحث.</li>
+                <li><strong>زحف مهذّب وآمن</strong> — يحترم robots.txt ووسم noindex/nofollow دايماً، ويستنّى بين صفحات نفس الموقع، وما يطلبش أي عنوان في شبكتك الداخلية.</li>
+            </ul>
+        </article>
+
+    </div>
+
+    <footer class="ifx-page-footer">
+        IFSE Open · <a href="https://github.com/ahmedxv-v12/ifse-open" data-i18n="rights">مفتوح المصدر — AGPL-3.0</a>
+    </footer>
+</main>
+
+<script src="/app.js?v=open-1.0"></script>
+<script src="/customize.js?v=open-1.0"></script>
+<script>
+IFX.applyLang();
+IFX.watchTopbar();
+</script>
+</body>
+</html>

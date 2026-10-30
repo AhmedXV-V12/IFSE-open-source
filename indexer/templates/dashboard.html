@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>IFSE Open Indexer</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400..800&family=Inter:wght@400..700&display=swap">
+<style>
+:root {
+  color-scheme: dark;
+  --bg:#090909; --surface:#1C1C1C; --surface-2:#111; --surface-3:#242424;
+  --line:rgba(255,255,255,.07); --line-2:rgba(255,255,255,.12);
+  --text:#fff; --text-2:rgba(255,255,255,.78); --text-3:rgba(255,255,255,.6);
+  --accent:#155AB6; --accent-text:#7aafff; --accent-soft:rgba(21,90,182,.16);
+  --ok:#3ccf8e; --warn:#f0b54a; --danger:#ff5a5a; --danger-soft:rgba(255,90,90,.1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font: 14px/1.5 Inter, Cairo, system-ui, sans-serif; min-height: 100vh; }
+a { color: var(--accent-text); }
+button, input, select, textarea { font: inherit; color: inherit; }
+header { display: flex; align-items: center; gap: 14px; padding: 14px 20px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: rgba(9,9,9,.92); backdrop-filter: blur(8px); z-index: 5; flex-wrap: wrap; }
+header h1 { font-size: 16px; font-weight: 700; }
+header h1 small { color: var(--text-3); font-weight: 400; }
+nav.tabs { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+nav.tabs button { border: 1px solid var(--line-2); background: transparent; padding: 6px 14px; border-radius: 100px; color: var(--text-2); cursor: pointer; }
+nav.tabs button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+main { max-width: 1180px; margin: 0 auto; padding: 20px 16px 60px; display: flex; flex-direction: column; gap: 18px; }
+section[hidden] { display: none !important; }
+.card { background: var(--surface); border: 1px solid var(--line-2); border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.card h2 { font-size: 15px; }
+.card p.hint, .hint { color: var(--text-3); font-size: 13px; }
+.grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.kpis { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.kpi { background: var(--surface); border: 1px solid var(--line-2); border-radius: 16px; padding: 14px 16px; }
+.kpi b { display: block; font-size: 24px; font-variant-numeric: tabular-nums; }
+.kpi span { color: var(--text-3); font-size: 13px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+input[type=text], input[type=url], input[type=number], input[type=search], select, textarea {
+  min-height: 38px; padding: 7px 12px; border-radius: 10px; border: 1px solid var(--line-2); background: var(--surface-2); }
+textarea { width: 100%; min-height: 120px; resize: vertical; font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+.btn { min-height: 38px; padding: 7px 16px; border-radius: 100px; border: 1px solid var(--line-2); background: var(--surface-3); cursor: pointer; white-space: nowrap; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.danger { background: var(--danger-soft); border-color: transparent; color: var(--danger); }
+.btn.small { min-height: 30px; padding: 3px 10px; font-size: 13px; }
+.btn:disabled { opacity: .5; cursor: default; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { text-align: start; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--text-3); font-weight: 500; white-space: nowrap; }
+td.url { max-width: 420px; overflow-wrap: anywhere; }
+td.url small { color: var(--text-3); display: block; }
+tr.click { cursor: pointer; }
+tr.click:hover td { background: var(--surface-2); }
+.tag { display: inline-block; padding: 1px 8px; border-radius: 100px; font-size: 12px; background: var(--surface-3); color: var(--text-2); }
+.tag.block { background: var(--danger-soft); color: var(--danger); }
+.tag.allow { background: rgba(60,207,142,.12); color: var(--ok); }
+.tag.added { color: var(--ok); } .tag.updated { color: var(--accent-text); }
+.tag.filtered, .tag.removed, .tag.purged { color: var(--danger); }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--text-3); margin-inline-end: 6px; }
+.dot.live { background: var(--ok); } .dot.warn { background: var(--warn); }
+.pager { display: flex; gap: 8px; align-items: center; justify-content: flex-end; color: var(--text-3); }
+.result { padding: 10px 12px; border-radius: 10px; background: var(--surface-2); font-size: 13px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.result.ok { border-inline-start: 3px solid var(--ok); } .result.bad { border-inline-start: 3px solid var(--danger); }
+dialog { margin: auto; width: min(760px, calc(100vw - 32px)); max-height: 86vh; background: var(--surface); color: var(--text); border: 1px solid var(--line-2); border-radius: 18px; padding: 20px; }
+dialog::backdrop { background: rgba(0,0,0,.6); }
+dialog pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; color: var(--text-2); background: var(--surface-2); padding: 12px; border-radius: 10px; max-height: 260px; overflow: auto; }
+dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; font-size: 13px; }
+dt { color: var(--text-3); } dd { overflow-wrap: anywhere; }
+label.chk { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+label.chk input { accent-color: var(--accent); width: 16px; height: 16px; }
+.fields { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+.fields label { display: flex; flex-direction: column; gap: 4px; color: var(--text-3); font-size: 12.5px; }
+#toast { position: fixed; bottom: 18px; inset-inline: 0; margin: auto; width: max-content; max-width: calc(100vw - 32px); background: var(--surface-3); border: 1px solid var(--line-2); padding: 10px 18px; border-radius: 100px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+#toast.show { opacity: 1; }
+[dir=auto] { unicode-bidi: plaintext; }
+</style>
+</head>
+<body>
+<header>
+  <h1>IFSE Open Indexer <small>v{{ version }}</small></h1>
+  <nav class="tabs" role="tablist">
+    <button data-tab="overview" class="on">Overview</button>
+    <button data-tab="crawl">Crawl</button>
+    <button data-tab="filters">Filters</button>
+    <button data-tab="index">Index browser</button>
+    <button data-tab="log">Index log</button>
+  </nav>
+  <a href="/logout" class="btn small">Sign out</a>
+</header>
+
+<main>
+<!-- ── Overview ─────────────────────────────────────────── -->
+<section id="overview">
+  <div class="kpis" id="kpis"></div>
+  <div class="grid" style="margin-top:14px">
+    <div class="card">
+      <h2>Crawler</h2>
+      <div id="crawlerState"></div>
+      <div class="row">
+        <button class="btn" id="pauseBtn">Pause</button>
+      </div>
+      <div class="hint">Fetching now:</div>
+      <div id="current" class="hint"></div>
+    </div>
+    <div class="card">
+      <h2>Last 24 hours</h2>
+      <div id="day" class="row"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Crawl ────────────────────────────────────────────── -->
+<section id="crawl" hidden>
+  <div class="grid">
+    <div class="card">
+      <h2>Add sites</h2>
+      <p class="hint">One URL or domain per line. The crawler starts from each one and follows links inside the same site up to the depth below.</p>
+      <textarea id="seedBox" dir="ltr" placeholder="https://ar.wikipedia.org&#10;example.com"></textarea>
+      <div class="row">
+        <label class="chk"><input type="checkbox" id="seedRecrawl"> Re-crawl if already known</label>
+        <button class="btn primary" id="seedBtn">Add to queue</button>
+      </div>
+      <div id="seedResult" class="hint"></div>
+    </div>
+    <div class="card">
+      <h2>Crawler settings</h2>
+      <div class="fields" id="settingsForm">
+        <label>Workers (parallel hosts)<input type="number" min="1" max="32" name="workers"></label>
+        <label>Delay per host (s)<input type="number" min="0.5" step="0.5" name="per_host_delay"></label>
+        <label>Max depth<input type="number" min="0" max="10" name="max_depth"></label>
+        <label>Max pages per host<input type="number" min="1" name="max_pages_per_host"></label>
+        <label>Request timeout (s)<input type="number" min="2" max="60" name="request_timeout"></label>
+        <label>Text kept per page (chars)<input type="number" min="500" step="500" name="body_chars"></label>
+        <label style="grid-column:1/-1">User agent<input type="text" name="user_agent" dir="ltr"></label>
+      </div>
+      <label class="chk"><input type="checkbox" name="follow_external" form="none" id="followExt"> Follow links to other sites</label>
+      <p class="hint">robots.txt, noindex and nofollow are always respected.</p>
+      <div class="row"><button class="btn primary" id="saveSettings">Save settings</button></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <div class="row" style="justify-content:space-between">
+      <h2>Queue</h2>
+      <div class="row">
+        <select id="queueState">
+          <option value="0">Waiting</option><option value="1">Fetching</option><option value="2">Done</option>
+          <option value="3">Failed</option><option value="4">Filtered out</option>
+        </select>
+        <button class="btn small" id="queueRetry">Retry these</button>
+        <button class="btn small danger" id="queueClear">Clear these</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>URL</th><th>Depth</th><th>Added</th><th>Note</th></tr></thead><tbody id="queueRows"></tbody></table></div>
+    <div class="pager"><button class="btn small" data-pg="queue:-1">‹</button><span id="queuePage">1</span><button class="btn small" data-pg="queue:1">›</button></div>
+  </div>
+</section>
+
+<!-- ── Filters ──────────────────────────────────────────── -->
+<section id="filters" hidden>
+  <div class="grid">
+    <div class="card">
+      <h2>Add a rule</h2>
+      <div class="fields">
+        <label>Action<select id="rAction"><option value="block">Block</option><option value="allow">Allow</option></select></label>
+        <label>Type<select id="rType">
+          <option value="host">Host (and subdomains)</option>
+          <option value="url_contains">URL contains</option>
+          <option value="url_regex">URL regex</option>
+          <option value="path_prefix">Path starts with</option>
+          <option value="keyword">Word in page</option>
+          <option value="title_word">Word in title</option>
+          <option value="lang">Language (ar / en / mixed)</option>
+        </select></label>
+        <label style="grid-column:1/-1">Value<input type="text" id="rValue" dir="auto" placeholder="example.com"></label>
+        <label style="grid-column:1/-1">Note (optional)<input type="text" id="rNote" dir="auto"></label>
+      </div>
+      <div class="row"><button class="btn primary" id="addRule">Add rule</button></div>
+      <p class="hint">An allow rule always wins over block rules. URL rules run before a page is downloaded; word and language rules run after.</p>
+    </div>
+    <div class="card">
+      <h2>Limits</h2>
+      <div class="fields">
+        <label>Minimum words per page<input type="number" min="0" id="oMinWords"></label>
+        <label>Maximum page size (KB)<input type="number" min="0" id="oMaxKb"></label>
+      </div>
+      <div class="row">
+        <span class="hint">Languages allowed (none checked = all):</span>
+        <label class="chk"><input type="checkbox" value="ar" class="oLang"> Arabic</label>
+        <label class="chk"><input type="checkbox" value="en" class="oLang"> English</label>
+        <label class="chk"><input type="checkbox" value="mixed" class="oLang"> Mixed</label>
+      </div>
+      <label class="chk"><input type="checkbox" id="oAllowOnly"> Allowlist only: index nothing that no allow rule matches</label>
+      <div class="row"><button class="btn primary" id="saveOptions">Save limits</button></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <h2>Rules</h2>
+    <div class="table-wrap"><table><thead><tr><th>Action</th><th>Type</th><th>Value</th><th>Note</th><th>On</th><th></th></tr></thead><tbody id="ruleRows"></tbody></table></div>
+  </div>
+
+  <div class="grid" style="margin-top:14px">
+    <div class="card">
+      <h2>Test a URL</h2>
+      <div class="row"><input type="url" id="testUrl" dir="ltr" placeholder="https://…" style="flex:1"><button class="btn" id="testBtn">Test</button></div>
+      <div id="testResult"></div>
+    </div>
+    <div class="card">
+      <h2>Apply filters to the index</h2>
+      <p class="hint">New rules stop new pages. To clean pages already indexed, preview what the current rules would remove, then remove it.</p>
+      <div class="row"><button class="btn" id="previewBtn">Preview</button><button class="btn danger" id="purgeBtn" disabled>Remove matching pages</button></div>
+      <div id="previewResult"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Index browser ────────────────────────────────────── -->
+<section id="index" hidden>
+  <div class="card">
+    <div class="row">
+      <input type="search" id="pQ" placeholder="URL or title contains…" dir="auto" style="flex:2;min-width:200px">
+      <input type="text" id="pHost" placeholder="host" dir="ltr" style="flex:1;min-width:140px">
+      <select id="pLang"><option value="">All languages</option><option value="ar">Arabic</option><option value="en">English</option><option value="mixed">Mixed</option></select>
+      <select id="pSort"><option value="new">Newest</option><option value="old">Oldest</option><option value="title">Title</option><option value="words">Most words</option><option value="size">Largest</option></select>
+      <button class="btn primary" id="pGo">Show</button>
+    </div>
+    <div class="row" style="justify-content:space-between">
+      <span class="hint" id="pTotal"></span>
+      <div class="row">
+        <button class="btn small" id="pRecrawl" disabled>Re-crawl selected</button>
+        <button class="btn small danger" id="pDelete" disabled>Remove selected</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th><input type="checkbox" id="pAll" aria-label="Select all"></th><th>Page</th><th>Lang</th><th>Words</th><th>KB</th><th>Crawled</th></tr></thead><tbody id="pageRows"></tbody></table></div>
+    <div class="pager"><button class="btn small" data-pg="pages:-1">‹</button><span id="pagesPage">1</span><button class="btn small" data-pg="pages:1">›</button></div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <div class="row" style="justify-content:space-between"><h2>Hosts</h2><input type="search" id="hQ" placeholder="filter hosts" dir="ltr"></div>
+    <div class="table-wrap"><table><thead><tr><th>Host</th><th>Pages</th><th>Last crawl</th><th></th></tr></thead><tbody id="hostRows"></tbody></table></div>
+    <div class="pager"><button class="btn small" data-pg="hosts:-1">‹</button><span id="hostsPage">1</span><button class="btn small" data-pg="hosts:1">›</button></div>
+  </div>
+</section>
+
+<!-- ── Index log ────────────────────────────────────────── -->
+<section id="log" hidden>
+  <div class="card">
+    <div class="row" style="justify-content:space-between">
+      <h2>Index log</h2>
+      <select id="logEvent">
+        <option value="">All events</option>
+        <option>added</option><option>updated</option><option>filtered</option><option>removed</option><option>purged</option>
+        <option>filter_added</option><option>filter_changed</option><option>filter_removed</option><option>filter_options</option>
+        <option>filters_applied</option><option>seeds</option><option>settings</option><option>pause</option><option>resume</option><option>queue_cleared</option>
+      </select>
+    </div>
+    <p class="hint">Every change to the index and to its rules, newest first. Kept for 90 days.</p>
+    <div class="table-wrap"><table><thead><tr><th>Time</th><th>Event</th><th>URL</th><th>Detail</th></tr></thead><tbody id="logRows"></tbody></table></div>
+    <div class="pager"><button class="btn small" data-pg="log:-1">‹</button><span id="logPage">1</span><button class="btn small" data-pg="log:1">›</button></div>
+  </div>
+</section>
+</main>
+
+<dialog id="pageDlg"></dialog>
+<div id="toast" role="status"></div>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = n => Number(n || 0).toLocaleString("en");
+const when = t => t ? new Date(t * 1000).toLocaleString("en-GB", { dateStyle: "short", timeStyle: "short" }) : "";
+const STATES = ["waiting", "fetching", "done", "failed", "filtered"];
+const pages = { queue: 1, pages: 1, hosts: 1, log: 1 };
+
+function toast(msg) {
+  const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove("show"), 2600);
+}
+
+async function api(path, data) {
+  const opt = data === undefined ? {} : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) };
+  const r = await fetch(path, opt);
+  if (r.status === 401) { location.reload(); throw new Error("signed out"); }
+  const d = await r.json().catch(() => ({ ok: false, error: "bad response" }));
+  if (!d.ok && d.error) toast(d.error);
+  return d;
+}
+
+/* ── tabs ── */
+let tab = "overview";
+$$("nav.tabs button").forEach(b => b.addEventListener("click", () => show(b.dataset.tab)));
+function show(name) {
+  tab = name;
+  $$("nav.tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === name));
+  $$("main > section").forEach(s => s.hidden = s.id !== name);
+  ({ overview: loadStatus, crawl: () => { loadSettings(); loadQueue(); }, filters: loadFilters,
+     index: () => { loadPages(); loadHosts(); }, log: loadLog })[name]();
+  try { history.replaceState(null, "", "#" + name); } catch {}
+}
+
+$$("[data-pg]").forEach(b => b.addEventListener("click", () => {
+  const [k, d] = b.dataset.pg.split(":");
+  pages[k] = Math.max(1, pages[k] + +d);
+  ({ queue: loadQueue, pages: loadPages, hosts: loadHosts, log: loadLog })[k]();
+}));
+
+/* ── overview ── */
+let paused = false;
+async function loadStatus() {
+  const s = await api("/api/admin/status");
+  if (!s.documents && s.documents !== 0) return;
+  const k = [["documents", "Pages indexed"], ["hosts", "Sites"], ["index_terms", "Terms"], ["queue_waiting", "Waiting in queue"],
+             ["queue_failed", "Failed"], ["queue_filtered", "Filtered out"], ["fetched", "Fetched since start"]];
+  $("#kpis").innerHTML = k.map(([f, n]) => `<div class="kpi"><b>${fmt(s[f])}</b><span>${n}</span></div>`).join("");
+  paused = s.paused;
+  $("#crawlerState").innerHTML = s.paused ? `<span class="dot warn"></span>Paused`
+    : s.running ? `<span class="dot live"></span>Running — ${s.workers} workers` : `<span class="dot"></span>Stopped`;
+  $("#pauseBtn").textContent = s.paused ? "Resume" : "Pause";
+  $("#current").innerHTML = (s.current || []).map(u => `<div dir="ltr">${esc(u)}</div>`).join("") || "—";
+  const l = await api("/api/admin/log?page=1");
+  $("#day").innerHTML = Object.entries(l.last_24h || {}).map(([e, n]) => `<span class="tag ${esc(e)}">${esc(e)}: ${fmt(n)}</span>`).join("") || `<span class="hint">Nothing yet.</span>`;
+}
+$("#pauseBtn").addEventListener("click", async () => {
+  await api("/api/admin/control", { action: paused ? "resume" : "pause" }); loadStatus();
+});
+
+/* ── crawl ── */
+$("#seedBtn").addEventListener("click", async () => {
+  const urls = $("#seedBox").value.split(/\n+/).map(s => s.trim()).filter(Boolean);
+  if (!urls.length) return;
+  const d = await api("/api/admin/seeds", { urls, recrawl: $("#seedRecrawl").checked });
+  if (d.ok) {
+    $("#seedResult").textContent = `${d.added} added${d.requeued ? `, ${d.requeued} re-queued` : ""}${d.invalid.length ? `, ${d.invalid.length} invalid: ${d.invalid.join(" ")}` : ""}`;
+    $("#seedBox").value = ""; loadQueue();
+  }
+});
+
+async function loadSettings() {
+  const d = await api("/api/admin/settings");
+  if (!d.ok) return;
+  for (const el of $$("#settingsForm input")) el.value = d.settings[el.name];
+  $("#followExt").checked = d.settings.follow_external;
+}
+$("#saveSettings").addEventListener("click", async () => {
+  const s = {};
+  for (const el of $$("#settingsForm input")) s[el.name] = el.type === "number" ? +el.value : el.value;
+  s.follow_external = $("#followExt").checked;
+  const d = await api("/api/admin/settings", s);
+  if (d.ok) { toast("Settings saved"); loadSettings(); }
+});
+
+async function loadQueue() {
+  const st = +$("#queueState").value;
+  const d = await api(`/api/admin/queue?state=${st}&page=${pages.queue}`);
+  $("#queuePage").textContent = pages.queue;
+  $("#queueRows").innerHTML = (d.items || []).map(r =>
+    `<tr><td class="url" dir="ltr">${esc(r.url)}</td><td>${r.depth}</td><td>${when(r.added_at)}</td><td>${esc(r.note)}</td></tr>`).join("")
+    || `<tr><td colspan="4" class="hint">Nothing ${STATES[st]}.</td></tr>`;
+  $("#queueClear").disabled = ![0, 3, 4].includes(st);
+  $("#queueRetry").disabled = ![3, 4].includes(st);
+}
+$("#queueState").addEventListener("change", () => { pages.queue = 1; loadQueue(); });
+$("#queueClear").addEventListener("click", async () => {
+  const st = +$("#queueState").value;
+  if (!confirm(`Remove every "${STATES[st]}" URL from the queue?`)) return;
+  const d = await api("/api/admin/queue/clear", { state: st }); if (d.ok) { toast(`${d.removed} removed`); loadQueue(); }
+});
+$("#queueRetry").addEventListener("click", async () => {
+  const d = await api("/api/admin/queue/retry", { state: +$("#queueState").value }); if (d.ok) { toast(`${d.requeued} queued again`); loadQueue(); }
+});
+
+/* ── filters ── */
+let filterData = null;
+const placeholders = { host: "example.com", url_contains: "/casino", url_regex: "\\/tag\\/|\\?replytocom=", path_prefix: "/search",
+                       keyword: "word or phrase", title_word: "word", lang: "ar, en or mixed" };
+$("#rType").addEventListener("change", () => $("#rValue").placeholder = placeholders[$("#rType").value]);
+
+async function loadFilters() {
+  const d = await api("/api/admin/filters");
+  if (!d.ok) return;
+  filterData = d.filters;
+  const f = d.filters;
+  $("#oMinWords").value = f.min_words; $("#oMaxKb").value = f.max_page_kb; $("#oAllowOnly").checked = f.allowlist_only;
+  $$(".oLang").forEach(c => c.checked = f.allowed_langs.includes(c.value));
+  $("#ruleRows").innerHTML = f.rules.slice().reverse().map(r => `<tr>
+      <td><span class="tag ${r.action}">${r.action}</span></td><td>${esc(r.type)}</td>
+      <td dir="auto" style="overflow-wrap:anywhere">${esc(r.value)}</td><td dir="auto">${esc(r.note)}</td>
+      <td><input type="checkbox" data-toggle="${esc(r.id)}" ${r.enabled ? "checked" : ""} aria-label="Enabled"></td>
+      <td><button class="btn small danger" data-del="${esc(r.id)}">Delete</button></td></tr>`).join("")
+    || `<tr><td colspan="6" class="hint">No rules: everything the crawler reaches is indexed.</td></tr>`;
+}
+$("#addRule").addEventListener("click", async () => {
+  const d = await api("/api/admin/filters/rule", { action: $("#rAction").value, type: $("#rType").value,
+                                                  value: $("#rValue").value, note: $("#rNote").value });
+  if (d.ok) { $("#rValue").value = ""; $("#rNote").value = ""; toast("Rule added"); loadFilters(); }
+});
+$("#ruleRows").addEventListener("click", async e => {
+  const id = e.target.dataset.del;
+  if (id && confirm("Delete this rule?")) { await api("/api/admin/filters/delete", { id }); loadFilters(); }
+});
+$("#ruleRows").addEventListener("change", async e => {
+  const id = e.target.dataset.toggle;
+  if (!id) return;
+  const r = filterData.rules.find(x => x.id === id);
+  await api("/api/admin/filters/rule", Object.assign({}, r, { enabled: e.target.checked })); loadFilters();
+});
+$("#saveOptions").addEventListener("click", async () => {
+  const d = await api("/api/admin/filters/options", { min_words: +$("#oMinWords").value, max_page_kb: +$("#oMaxKb").value,
+    allowlist_only: $("#oAllowOnly").checked, allowed_langs: $$(".oLang").filter(c => c.checked).map(c => c.value) });
+  if (d.ok) { toast("Limits saved"); loadFilters(); }
+});
+$("#testBtn").addEventListener("click", async () => {
+  const d = await api("/api/admin/filters/test", { url: $("#testUrl").value });
+  if (!d.ok) return;
+  const line = (n, c) => `<div class="result ${c.keep ? "ok" : "bad"}">${n}: ${c.keep ? "kept" : "filtered out — " + esc(c.why)}</div>`;
+  $("#testResult").innerHTML = line("URL rules", d.url_check) +
+    (d.page_check ? line("Indexed copy (all rules)", d.page_check) : `<div class="hint">Not in the index, so word and language rules could not be checked.</div>`);
+});
+$("#previewBtn").addEventListener("click", async () => {
+  $("#previewResult").innerHTML = `<div class="hint">Scanning the index…</div>`;
+  const d = await api("/api/admin/filters/apply", { dry: true });
+  if (!d.ok) return;
+  $("#purgeBtn").disabled = !d.count;
+  $("#previewResult").innerHTML = `<div class="hint">${fmt(d.count)} pages would be removed${d.count > d.sample.length ? ` (first ${d.sample.length} shown)` : ""}.</div>` +
+    d.sample.map(h => `<div class="result bad" dir="ltr">${esc(h.url)}\n<small>${esc(h.why)}</small></div>`).join("");
+});
+$("#purgeBtn").addEventListener("click", async () => {
+  if (!confirm("Remove every page that the current filters reject? This cannot be undone (the pages come back only if crawled again).")) return;
+  const d = await api("/api/admin/filters/apply", { dry: false });
+  if (d.ok) { toast(`${fmt(d.removed)} pages removed`); $("#purgeBtn").disabled = true; $("#previewResult").innerHTML = ""; }
+});
+
+/* ── index browser ── */
+const selected = new Set();
+function syncSel() {
+  $("#pDelete").disabled = $("#pRecrawl").disabled = !selected.size;
+}
+async function loadPages() {
+  const q = new URLSearchParams({ q: $("#pQ").value, host: $("#pHost").value, lang: $("#pLang").value, sort: $("#pSort").value, page: pages.pages });
+  const d = await api("/api/admin/pages?" + q);
+  if (!d.ok) return;
+  selected.clear(); syncSel(); $("#pAll").checked = false;
+  $("#pagesPage").textContent = d.page;
+  $("#pTotal").textContent = `${fmt(d.total)} pages`;
+  $("#pageRows").innerHTML = d.items.map(p => `<tr class="click" data-id="${p.id}">
+      <td><input type="checkbox" data-sel="${p.id}" aria-label="Select"></td>
+      <td class="url"><span dir="auto">${esc(p.title || "(no title)")}</span><small dir="ltr">${esc(p.url)}</small></td>
+      <td>${p.lang}</td><td>${fmt(p.words)}</td><td>${p.size_kb}</td><td>${when(p.fetched_at)}</td></tr>`).join("")
+    || `<tr><td colspan="6" class="hint">No pages match.</td></tr>`;
+}
+$("#pGo").addEventListener("click", () => { pages.pages = 1; loadPages(); });
+$("#pQ").addEventListener("keydown", e => { if (e.key === "Enter") $("#pGo").click(); });
+$("#pHost").addEventListener("keydown", e => { if (e.key === "Enter") $("#pGo").click(); });
+$("#pAll").addEventListener("change", e => {
+  $$("[data-sel]").forEach(c => { c.checked = e.target.checked; e.target.checked ? selected.add(+c.dataset.sel) : selected.delete(+c.dataset.sel); });
+  syncSel();
+});
+$("#pageRows").addEventListener("click", e => {
+  const c = e.target.closest("[data-sel]");
+  if (c) { c.checked ? selected.add(+c.dataset.sel) : selected.delete(+c.dataset.sel); syncSel(); return; }
+  const tr = e.target.closest("tr[data-id]");
+  if (tr) openPage(+tr.dataset.id);
+});
+$("#pDelete").addEventListener("click", async () => {
+  if (!confirm(`Remove ${selected.size} pages from the index?`)) return;
+  const d = await api("/api/admin/pages/delete", { ids: [...selected] }); if (d.ok) { toast(`${d.removed} removed`); loadPages(); }
+});
+$("#pRecrawl").addEventListener("click", async () => {
+  const d = await api("/api/admin/pages/recrawl", { ids: [...selected] }); if (d.ok) toast(`${d.requeued} queued for re-crawl`);
+});
+
+async function openPage(id) {
+  const d = await api(`/api/admin/page?id=${id}`);
+  if (!d.ok) return;
+  const p = d.page, dlg = $("#pageDlg");
+  dlg.innerHTML = `<div class="row" style="justify-content:space-between;margin-bottom:12px"><h2 dir="auto" style="font-size:16px">${esc(p.title || "(no title)")}</h2>
+      <button class="btn small" data-x>Close</button></div>
+    <dl><dt>URL</dt><dd dir="ltr"><a href="${esc(p.url)}" target="_blank" rel="noopener noreferrer">${esc(p.url)}</a></dd>
+      <dt>Host</dt><dd>${esc(p.host)}</dd><dt>Language</dt><dd>${p.lang}</dd><dt>Words / size</dt><dd>${fmt(p.words)} / ${p.size_kb} KB</dd>
+      <dt>Depth</dt><dd>${p.depth}</dd><dt>First seen</dt><dd>${when(p.first_seen)}</dd><dt>Last crawl</dt><dd>${when(p.fetched_at)}</dd>
+      <dt>Description</dt><dd dir="auto">${esc(p.description)}</dd><dt>Headings</dt><dd dir="auto">${esc(p.headings)}</dd></dl>
+    <h3 style="font-size:14px;margin:14px 0 6px">Text kept</h3><pre dir="auto">${esc(p.body)}</pre>
+    <h3 style="font-size:14px;margin:14px 0 6px">History</h3>
+    ${d.history.map(h => `<div class="hint">${when(h.ts)} · <span class="tag ${esc(h.event)}">${esc(h.event)}</span> ${esc(h.detail)}</div>`).join("")}
+    <div class="row" style="margin-top:16px">
+      <button class="btn" data-recrawl>Re-crawl</button>
+      <button class="btn danger" data-del>Remove page</button>
+      <button class="btn danger" data-block>Remove + block ${esc(p.host)}</button>
+    </div>`;
+  dlg.querySelector("[data-x]").onclick = () => dlg.close();
+  dlg.querySelector("[data-recrawl]").onclick = async () => { await api("/api/admin/pages/recrawl", { ids: [id] }); toast("Queued"); };
+  dlg.querySelector("[data-del]").onclick = async () => { await api("/api/admin/pages/delete", { ids: [id] }); dlg.close(); loadPages(); };
+  dlg.querySelector("[data-block]").onclick = async () => {
+    if (!confirm(`Remove every page of ${p.host} and add a block rule for it?`)) return;
+    const r = await api("/api/admin/pages/delete_host", { host: p.host, block: true });
+    if (r.ok) { toast(`${r.removed} pages removed, host blocked`); dlg.close(); loadPages(); loadHosts(); }
+  };
+  dlg.showModal();
+}
+
+async function loadHosts() {
+  const d = await api(`/api/admin/hosts?q=${encodeURIComponent($("#hQ").value)}&page=${pages.hosts}`);
+  if (!d.ok) return;
+  $("#hostsPage").textContent = pages.hosts;
+  $("#hostRows").innerHTML = d.items.map(h => `<tr><td dir="ltr"><a href="#" data-host="${esc(h.host)}">${esc(h.host)}</a></td><td>${fmt(h.pages)}</td><td>${when(h.last)}</td>
+      <td class="row"><button class="btn small danger" data-hdel="${esc(h.host)}">Remove</button><button class="btn small danger" data-hblock="${esc(h.host)}">Remove + block</button></td></tr>`).join("")
+    || `<tr><td colspan="4" class="hint">No sites yet.</td></tr>`;
+}
+$("#hQ").addEventListener("input", () => { pages.hosts = 1; clearTimeout(loadHosts.t); loadHosts.t = setTimeout(loadHosts, 300); });
+$("#hostRows").addEventListener("click", async e => {
+  const a = e.target.closest("[data-host]");
+  if (a) { e.preventDefault(); $("#pHost").value = a.dataset.host; pages.pages = 1; loadPages(); window.scrollTo({ top: 0 }); return; }
+  const host = e.target.dataset.hdel || e.target.dataset.hblock;
+  if (!host) return;
+  const block = !!e.target.dataset.hblock;
+  if (!confirm(`Remove every page of ${host}${block ? " and block it" : ""}?`)) return;
+  const d = await api("/api/admin/pages/delete_host", { host, block });
+  if (d.ok) { toast(`${d.removed} pages removed`); loadHosts(); loadPages(); }
+});
+
+/* ── log ── */
+async function loadLog() {
+  const d = await api(`/api/admin/log?event=${encodeURIComponent($("#logEvent").value)}&page=${pages.log}`);
+  if (!d.ok) return;
+  $("#logPage").textContent = pages.log;
+  $("#logRows").innerHTML = d.items.map(r => `<tr><td style="white-space:nowrap">${when(r.ts)}</td><td><span class="tag ${esc(r.event)}">${esc(r.event)}</span></td>
+      <td class="url" dir="ltr">${esc(r.url)}</td><td dir="auto">${esc(r.detail)}</td></tr>`).join("")
+    || `<tr><td colspan="4" class="hint">Nothing logged.</td></tr>`;
+}
+$("#logEvent").addEventListener("change", () => { pages.log = 1; loadLog(); });
+
+const fromHash = () => show(["overview", "crawl", "filters", "index", "log"].includes(location.hash.slice(1)) ? location.hash.slice(1) : "overview");
+window.addEventListener("hashchange", fromHash);
+fromHash();
+setInterval(() => { if (!document.hidden && tab === "overview") loadStatus(); }, 5000);
+</script>
+</body>
+</html>
