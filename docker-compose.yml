@@ -1,5 +1,5 @@
 # IFSE Open: two services sharing one index (the ifse-data volume)
-#   search   public site + API          http://localhost:5000
+#   search   public site + API          http://localhost:5000  (owner sign-in: /owner)
 #   indexer  crawler + index + dashboard http://127.0.0.1:5101 (keep it private)
 services:
   indexer:
@@ -23,8 +23,10 @@ services:
     restart: unless-stopped
     environment:
       - IFSE_RATE_PER_MIN=${IFSE_RATE_PER_MIN:-120}
+      - IFSE_ADMIN_TOKEN=${IFSE_ADMIN_TOKEN:-}
     volumes:
       - ifse-data:/data:ro
+      - ifse-site:/site     # the site design and its images
     ports:
       - "5000:5000"
     depends_on:
@@ -36,3 +38,4 @@ services:
 
 volumes:
   ifse-data:
+  ifse-site:

@@ -24,7 +24,7 @@ import filters  # noqa: E402
 import index  # noqa: E402
 import store  # noqa: E402
 
-VERSION = "1.0"
+VERSION = "1.1"
 
 app = Flask(__name__)
 app.json.ensure_ascii = False
@@ -93,7 +93,7 @@ def headers(resp):
 def home():
     if not _authorized():
         return render_template("login.html", version=VERSION)
-    return render_template("dashboard.html", version=VERSION)
+    return render_template("dashboard.html", version=VERSION, search_url=os.environ.get("IFSE_SEARCH_URL", "").rstrip("/"))
 
 
 @app.route("/login", methods=["POST"])

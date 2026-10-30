@@ -88,6 +88,7 @@ label.chk input { accent-color: var(--accent); width: 16px; height: 16px; }
     <button data-tab="index">Index browser</button>
     <button data-tab="log">Index log</button>
   </nav>
+  <a href="#" class="btn small" id="siteLink" target="_blank" rel="noopener">Customize the site ↗</a>
   <a href="/logout" class="btn small">Sign out</a>
 </header>
 
@@ -532,6 +533,9 @@ async function loadLog() {
     || `<tr><td colspan="4" class="hint">Nothing logged.</td></tr>`;
 }
 $("#logEvent").addEventListener("change", () => { pages.log = 1; loadLog(); });
+
+/* the search service runs on its own port (IFSE_SEARCH_URL overrides) */
+$("#siteLink").href = ({{ search_url|tojson }} || `${location.protocol}//${location.hostname}:5000`) + "/owner";
 
 const fromHash = () => show(["overview", "crawl", "filters", "index", "log"].includes(location.hash.slice(1)) ? location.hash.slice(1) : "overview");
 window.addEventListener("hashchange", fromHash);

@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   IFSE Open v1.0 — Customize my engine (see customize.js)
+   IFSE Open v1.1 — Customize my engine (see customize.js)
    ══════════════════════════════════════════════════════════ */
 
 /* ─── background layer ──────────────────────────────────── */
@@ -16,8 +16,6 @@ html.ifxc-radius {
     --r-md:   calc(16px * var(--ifxc-radius));
     --r-sm:   calc(10px * var(--ifxc-radius));
 }
-
-.ifxc-hidden { display: none !important; }
 
 /* ─── home layout ───────────────────────────────────────── */
 body.ifxc-home .ifx-home-main {
@@ -240,8 +238,37 @@ html[dir="rtl"] .ifxc-panel { transform: translateX(calc(100% + 24px)); }
     width: 30px; height: 30px; flex: none; border-radius: 50%;
     border: 1px solid var(--line-2); background: transparent; color: var(--text-2);
 }
-.ifxc-imglist img { width: 40px; height: 40px; object-fit: cover; border-radius: 6px; flex: none; }
-.ifxc-imglist input[type="range"] { flex: 1; min-width: 0; }
+.ifxc-imgrow img { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; flex: none; }
+
+/* ─── picking elements while editing ────────────────────── */
+body.ifxc-editing .ifxc-hover { outline: 2px dashed var(--accent-text) !important; outline-offset: 3px; cursor: pointer; }
+body.ifxc-editing .ifxc-picked { outline: 2px solid var(--accent) !important; outline-offset: 3px; }
+
+.ifxc-picked-name {
+    font-weight: 700; font-size: 15px;
+    padding: 8px 12px; border-radius: var(--r-sm);
+    background: var(--accent-soft); border: 1px solid var(--accent-line);
+}
+.ifxc-pcolors { display: flex; flex-direction: column; gap: 8px; }
+.ifxc-pcolor { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ifxc-unset { font-size: 12px; color: var(--text-4); }
+.ifxc-mini {
+    min-height: 30px; padding: 4px 12px; border-radius: var(--r-pill);
+    border: 1px solid var(--line-2); background: var(--surface-3); color: var(--text-2); font-size: 12.5px;
+}
+.ifxc-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.ifxc-row .ifxc-btn { flex: 1; }
+
+.ifxc-imgrow { align-items: flex-start !important; }
+.ifxc-imgctl { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.ifxc-imgctl label { display: flex; flex-direction: column; font-size: 12px; color: var(--text-3); }
+.ifxc-imgctl input { accent-color: var(--accent); width: 100%; }
+
+/* save bar */
+.ifxc-foot { padding: 12px 18px 16px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; }
+.ifxc-status { font-size: 12.5px; color: var(--text-3); }
+.ifxc-status.is-dirty { color: var(--accent-text); font-weight: 600; }
+.ifxc-btn:disabled { opacity: .45; cursor: default; }
 
 @media (max-width: 560px) {
     .ifxc-panel {

@@ -1,5 +1,5 @@
-/* IFSE Open v1.0 — offline fallback only; pages and API are never served stale */
-const IFSE_CACHE  = "ifse-open-offline-v1.0";
+/* IFSE Open v1.1 — offline fallback only; pages and API are never served stale */
+const IFSE_CACHE  = "ifse-open-offline-v1.1";
 const OFFLINE_URL = "/offline";
 const PRECACHE    = [OFFLINE_URL, "/style.css", "/customize.css", "/customize.js", "/app.js", "/logow.png", "/logo.png", "/logow-352.webp", "/logow-72.webp"];
 

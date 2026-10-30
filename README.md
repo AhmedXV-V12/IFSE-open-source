@@ -20,7 +20,7 @@ Two services in one repository, sharing one index:
 
 | Service | Port | What it does |
 |---|---|---|
-| **search** | `5000` (public) | The IFelx search site: home page, results, changelog, browsing history (kept in the visitor's browser), and the JSON API. Reads the index only. |
+| **search** | `5000` (public) | The IFelx search site: home page, results, browsing history (kept in the visitor's browser), the site design, and the JSON API. Reads the index only. |
 | **indexer** | `5101` (private) | Crawler + indexer + the owner's dashboard: add sites, write indexing filters, browse the index, read the index log. The only writer of the index. |
 
 The index is a single SQLite database with full-text search (FTS5), with Arabic
@@ -37,12 +37,21 @@ normalisation (أ/إ/آ → ا, ة → ه, ى → ي, tashkeel removed) and ligh
   page's text and history, remove or re-crawl it, or remove a whole site and block it.
 - **Index log** — every page added, updated, filtered out or removed, and every change to
   filters and settings, with its time and reason (kept 90 days).
-- **Changelog page** — `/about` lists every release; add a new entry on top for each one.
-- **Customize my engine** — the gear in the corner of the home page opens a design editor:
-  put the search box in one of nine places or drag it anywhere, change colours (or pick a
-  preset), set a background colour, gradient or image, add shortcut tiles and images on the
-  page, show or hide parts of the page, and export / import the design as a JSON file.
-  The design is saved in the visitor's browser.
+- **Customize my engine** — one design for the whole site, shown to every visitor. The
+  owner signs in at `/owner` (with the admin token) and a gear appears in the corner of the
+  pages. It opens a design editor:
+  - put the search box in one of nine places or drag it anywhere;
+  - change the site colours (or pick a preset) and the page background: a colour, a
+    gradient, or an uploaded image with dim and blur;
+  - set how soft the corners are on the whole site;
+  - click **any element** on the page — search box, button, logo, results, side panel,
+    bars, footer… — to change its background, text and border colours, its own corner
+    softness and opacity, or to delete it (deleted elements can be restored);
+  - add shortcut tiles, and pictures placed freely on the page (size, rotation, corners);
+  - export / import the design as a JSON file.
+
+  Changes are a live preview until **Save for everyone**. Every value is validated on the
+  server before it is stored, and uploaded images are re-checked and stored by hash.
 
 ### What it leaves out
 
@@ -59,6 +68,7 @@ docker compose up -d --build
 ```
 
 - Search: <http://localhost:5000>
+- Customize the site: <http://localhost:5000/owner> — sign in with `IFSE_ADMIN_TOKEN`.
 - Indexer dashboard: <http://127.0.0.1:5101> — sign in with `IFSE_ADMIN_TOKEN`.
   Left empty, a token is generated on first start; read it with
   `docker compose exec indexer cat /data/admin_token`.
@@ -85,6 +95,8 @@ Data goes to `./data` (or `IFSE_DATA`).
 |---|---|---|
 | `IFSE_ADMIN_TOKEN` | generated | Dashboard password |
 | `IFSE_DATA` | `./data` (`/data` in Docker) | Where the index, filters and settings live |
+| `IFSE_SITE_DATA` | `./data/site` (`/site` in Docker) | The site design and its uploaded images |
+| `IFSE_SEARCH_URL` | `http://<host>:5000` | Where the dashboard's "Customize the site" link points |
 | `IFSE_RATE_PER_MIN` | `120` | API requests per minute per IP on the search service |
 | `IFSE_ALLOW_PRIVATE` | off | `1` lets the crawler fetch private addresses (your LAN / intranet). Off, it only fetches public addresses. |
 | `IFSE_INDEXER_PORT` / `IFSE_SEARCH_PORT` | `5101` / `5000` | Ports |
@@ -114,20 +126,20 @@ of one host, and follows redirects through the queue so every target meets the f
 | `GET /api/search?q=…&page=1` | `{results:[{url,title,description,lang}], count, took_ms, stats}` |
 | `GET /api/autocomplete?q=…` | `{suggestions:[{text}]}` |
 | `GET /api/stats` | documents, terms, sites, crawler state |
+| `GET /api/design` | the published site design |
 
 ## Project layout
 
 ```
 common/    textnorm.py (normalisation, stemming)  store.py (database)  filters.py (rules)
 indexer/   app.py (dashboard + admin API)  crawler.py  index.py (every write)  templates/
-search/    app.py (site + API)  static/ (IFelx UI, customize.js, about.html changelog)
+search/    app.py (site + API)  design.py (site design, owner sign-in, uploads)  static/ (IFelx UI, customize.js)
 ```
 
 ## Releasing
 
 Bump `VERSION` in `indexer/app.py`, `search/app.py` and `search/static/app.js`, the
-`?v=` on the pages, the cache name in `sw.js`, and add an entry on top of
-`search/static/about.html`. Never edit a published entry.
+`?v=` on the pages and the cache name in `sw.js`.
 
 ## License
 

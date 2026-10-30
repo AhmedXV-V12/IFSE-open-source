@@ -1,7 +1,8 @@
 """
 app.py - IFSE Open search service
-The public site on port 5000: home page, results, changelog, and the JSON
-API the pages use. It only reads the index; the indexer service writes it.
+The public site on port 5000: home page, results, history, the site design
+(design.py) and the JSON API the pages use. It only reads the index; the
+indexer service writes it.
 """
 
 import os
@@ -14,15 +15,17 @@ from flask import Flask, jsonify, request, send_from_directory
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "common"))
 
+import design  # noqa: E402
 import store  # noqa: E402
 import textnorm  # noqa: E402
 
-VERSION = "1.0"
+VERSION = "1.1"
 STATIC = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
 MAX_RESULTS = 50
 
 app = Flask(__name__, static_folder=None)
 app.json.ensure_ascii = False
+app.register_blueprint(design.bp)
 
 _local = threading.local()
 
@@ -192,25 +195,27 @@ def api_rate():
 _PAGES = {
     "/": "index.html",
     "/search": "search.html",
-    "/about": "about.html",
     "/history": "history.html",
     "/offline": "offline.html",
+    "/owner": "owner.html",
 }
 
 
 @app.route("/")
 @app.route("/search")
-@app.route("/about")
 @app.route("/history")
 @app.route("/offline")
+@app.route("/owner")
 def page():
-    return send_from_directory(STATIC, _PAGES[request.path])
+    return design.render_page(STATIC, _PAGES[request.path])
 
 
 @app.route("/<path:name>")
 def static_file(name):
     if not re.fullmatch(r"[\w\-.]+", name):
         return ("", 404)
+    if name.endswith(".html") and os.path.isfile(os.path.join(STATIC, name)):
+        return design.render_page(STATIC, name)
     return send_from_directory(STATIC, name)
 
 

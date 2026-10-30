@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   IFSE Open v1.0 — shared front-end runtime
+   IFSE Open v1.1 — shared front-end runtime
    Loaded by every page. All requests stay relative to the
    backend origin; browsing history never leaves the device.
    ══════════════════════════════════════════════════════════ */
@@ -7,7 +7,7 @@
 "use strict";
 
 const API     = "";
-const VERSION = "open-1.0";
+const VERSION = "open-1.1";
 
 /* ── Icons ─────────────────────────────────────────────── */
 const svg = (d, extra) =>

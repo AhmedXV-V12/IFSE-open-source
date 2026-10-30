@@ -3,7 +3,8 @@ FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    IFSE_DATA=/data
+    IFSE_DATA=/data \
+    IFSE_SITE_DATA=/site
 
 WORKDIR /app
 COPY requirements.txt .
@@ -13,6 +14,6 @@ COPY common/ common/
 COPY indexer/ indexer/
 COPY search/ search/
 
-RUN useradd --system --uid 10001 ifse && mkdir -p /data && chown ifse /data
+RUN useradd --system --uid 10001 ifse && mkdir -p /data /site && chown ifse /data /site
 USER ifse
-VOLUME /data
+VOLUME ["/data", "/site"]
