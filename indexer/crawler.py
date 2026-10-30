@@ -30,7 +30,7 @@ SETTINGS_DEFAULTS = {
     "follow_external": False,
     "request_timeout": 8,
     "body_chars": 6000,
-    "user_agent": "IFSE-Open/1.0 (+https://github.com/ahmedxv-v12/ifse-open)",
+    "user_agent": "IFSE-Open/1.0 (+https://github.com/AhmedXV-V12/IFSE-open-source)",
     "paused": False,
 }
 

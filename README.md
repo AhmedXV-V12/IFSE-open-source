@@ -61,8 +61,8 @@ index and empty filters: what goes in is decided by whoever runs it.
 ## Run it
 
 ```bash
-git clone https://github.com/ahmedxv-v12/ifse-open.git
-cd ifse-open
+git clone https://github.com/AhmedXV-V12/IFSE-open-source.git
+cd IFSE-open-source
 cp .env.example .env        # set IFSE_ADMIN_TOKEN to a long random string
 docker compose up -d --build
 ```
